@@ -1,0 +1,40 @@
+{
+  "wallet": {
+    "activeAccounts": [
+      {
+        "address": "0x7467594Dd44629415864Af5BcBf861b0C886afAD",
+        "coin": 60,
+        "derivationPath": "m/44'/60'/0'/0/0"
+      }
+    ],
+    "crypto": {
+      "cipher": "aes-128-ctr",
+      "cipherparams": {
+        "iv": "94800f3f94f411a6f52fcea721d897d1"
+      },
+      "ciphertext": "b14d6af4f037493b32603385095f1bc3b404da4bc9978575fad57831badb6aa7",
+      "kdf": "scrypt",
+      "kdfparams": {
+        "dklen": 32,
+        "n": 4096,
+        "p": 6,
+        "r": 8,
+        "salt": "f1134763ecac3496e9f79fe590a9185b0c2b4c4fb5717a92579dc4d82ca67a00"
+      },
+      "mac": "e2464307b4478c19644c349ab0ca54015aae48017af8e9e6cc8faedb990c0ecc"
+    },
+    "id": "5951376e-1ec5-4242-a7c3-8bb129c72be6",
+    "name": "PKTest",
+    "type": "private-key",
+    "version": 3
+  },
+  "accounts": [
+      {
+          "address": "0x7467594Dd44629415864Af5BcBf861b0C886afAD",
+          "index": 0,
+          "derivationPath": "m/44'/60'/0'/0/0"
+      }
+  ],
+  "version": 1,
+  "identifier": "wallet-id"
+}

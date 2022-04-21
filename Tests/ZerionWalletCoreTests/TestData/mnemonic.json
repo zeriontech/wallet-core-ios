@@ -1,0 +1,50 @@
+{
+  "wallet": {
+    "crypto": {
+      "cipher": "aes-128-ctr",
+      "cipherparams": {
+        "iv": "cb392255c1cc115ca5b77efe39becd59"
+      },
+      "ciphertext": "95ea74fcedfaa7c1289f92d3e53a6340cbe3ee02b7fc3b8878eee06de5b83d4799fd1dc06c465e4af052be23b8fe0825aaf6e8ebfbe9fdbbe711451566c6e3ab56dd6989faf1ecfeb19cebaa85cd",
+      "kdf": "scrypt",
+      "kdfparams": {
+        "dklen": 32,
+        "n": 4096,
+        "p": 6,
+        "r": 8,
+        "salt": "49caf09de262a5327d62596dbbb2b0d782b9d6a2caa7c9528d8ba1cde1f4dc4a"
+      },
+      "mac": "95c9d6c80a4be57011d054ea7b66d0c976d5904d7f603199702ce48d28452e40"
+    },
+    "activeAccounts": [
+      {
+        "address": "0xED4a971eA7948B79265C3CA0b9F79D9b56c0022d",
+        "coin": 60,
+        "derivationPath": "m/44'/60'/0'/0/0"
+      }
+    ],
+    "type": "mnemonic",
+    "version": 3,
+    "id": "ffa1a9ff-e67d-4d24-98f4-4c5476eaa04a",
+    "name": "Test"
+  },
+  "accounts": [
+      {
+          "address": "0xED4a971eA7948B79265C3CA0b9F79D9b56c0022d",
+          "index": 0,
+          "derivationPath": "m/44'/60'/0'/0/0"
+      },
+      {
+          "address": "0x7467594Dd44629415864Af5BcBf861b0C886afAD",
+          "index": 1,
+          "derivationPath": "m/44'/60'/0'/0/1"
+      },
+      {
+          "address": "0x04b9aB3Be467cbB98f275B266952977116FF59b7",
+          "index": 2,
+          "derivationPath": "m/44'/60'/0'/0/2"
+      }
+  ],
+  "version": 1,
+  "identifier": "wallet-id"
+}
