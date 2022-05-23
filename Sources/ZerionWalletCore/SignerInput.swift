@@ -8,19 +8,24 @@
 
 import Foundation
 
+enum TransactionType {
+    case classic(gasPrice: Data)
+    case eip1559(priorityFeePerGas: Data, maxFeePerGas: Data)
+}
+
+struct TransactionInput {
+    let type: TransactionType
+    let chainID: Data
+    let nonce: Data
+    let gas: Data
+    let toAddress: String
+    let data: Data
+    let amount: Data
+}
+
 enum SignerInput {
     case sign(Data)
     case personalSign(Data)
     case typedData(Data)
     case transaction(TransactionInput)
-}
-
-struct TransactionInput {
-    let chainID: Data
-    let nonce: Data
-    let gasPrice: Data
-    let gas: Data
-    let toAddress: String
-    let data: Data
-    let amount: Data
 }

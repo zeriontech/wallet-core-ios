@@ -37,7 +37,6 @@ private extension Signer {
         let input = EthereumSigningInput.with {
             $0.chainID = transaction.chainID
             $0.nonce = transaction.nonce
-            $0.gasPrice = transaction.gasPrice
             $0.gasLimit = transaction.gas
             $0.toAddress = transaction.toAddress
             $0.privateKey = privateKey
@@ -47,12 +46,21 @@ private extension Signer {
                     $0.amount = transaction.amount
                 }
             }
+            switch transaction.type {
+            case let .classic(gasPrice):
+                $0.gasPrice = gasPrice
+                $0.txMode = .legacy
+            case let .eip1559(priorityFeePerGas, maxFeePerGas):
+                $0.maxInclusionFeePerGas = priorityFeePerGas
+                $0.maxFeePerGas = maxFeePerGas
+                $0.txMode = .enveloped
+            }
         }
-        
+
         let output: EthereumSigningOutput = AnySigner.sign(input: input, coin: .fantom)
         return output.encoded
     }
-    
+
     static func sign(data: Data, privateKey: Data, addPrefix: Bool) throws -> Data {
         guard let privateKey = PrivateKey(data: privateKey) else {
             throw SignerError.failedToSign

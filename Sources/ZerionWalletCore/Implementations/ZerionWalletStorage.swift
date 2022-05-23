@@ -12,16 +12,47 @@ import KeychainAccess
 class ZerionWalletStorage {
     private let containerPrefix: String
     private let keychain: Keychain
-    
+
     init(service: String, containerPrefix: String? = nil) {
-        self.keychain = Keychain(service: service).attributes([String(kSecAttrIsInvisible): true])
+        self.keychain = Keychain(service: service)
+            .accessibility(.whenUnlockedThisDeviceOnly)
+            .attributes([
+                String(kSecAttrSynchronizable): false,
+                String(kSecAttrIsInvisible): true
+            ])
         self.containerPrefix = containerPrefix ?? service
+        self.updateAttributesIfNeeded()
     }
 }
 
 private extension ZerionWalletStorage {
     func makeContainerKey(identifier: String) -> String {
         "\(containerPrefix).\(identifier)"
+    }
+
+    func updateAttributesIfNeeded() {
+        for key in keychain.allKeys() {
+            updateAttributesIfNeeded(key: key)
+        }
+    }
+
+    func updateAttributesIfNeeded(key: String) {
+        let attrubutes = keychain[attributes: key]
+        if attributesNeedUpdate(attributes: attrubutes) {
+            let value = keychain[data: key]
+            keychain[data: key] = value
+        }
+    }
+
+    func attributesNeedUpdate(attributes: Attributes?) -> Bool {
+        guard let attributes = attributes else {
+            return true
+        }
+
+        let invisible = (attributes[String(kSecAttrIsInvisible)] as? Bool) ?? false
+        let synchronizable = (attributes[String(kSecAttrSynchronizable)] as? Bool) ?? true
+
+        return !invisible || synchronizable
     }
 }
 

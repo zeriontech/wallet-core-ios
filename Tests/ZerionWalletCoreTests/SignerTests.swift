@@ -39,15 +39,15 @@ class SignerTests: XCTestCase {
     
     func testSignTransaction() throws {
         let transaction = TransactionInput(
+            type: .classic(gasPrice: Data(hexString: "0ab5d04c00")!),
             chainID: Data(hexString: "01")!,
             nonce: Data(hexString: "00")!,
-            gasPrice: Data(hexString: "0ab5d04c00")!,
             gas: Data(hexString: "5208")!,
             toAddress: "0x7467594dd44629415864af5bcbf861b0c886afad",
             data: Data(),
             amount: Data(hexString: "00")!
         )
-        
+
         let signed = "f86480850ab5d04c00825208947467594dd44629415864af5bcbf861b0c886afad808026a08a" +
             "79f5d3d7bec3670cffdf8f36adbded9f566fdcd41e7628741e6aecca2c761ea0" +
             "40474ba7f53392511de1bfcea364b14956a4b0d8285f08aef6bee284abb24228"
