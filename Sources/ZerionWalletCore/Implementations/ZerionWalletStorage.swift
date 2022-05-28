@@ -15,7 +15,7 @@ class ZerionWalletStorage {
 
     init(service: String, containerPrefix: String? = nil) {
         self.keychain = Keychain(service: service)
-            .accessibility(.whenUnlockedThisDeviceOnly)
+            .accessibility(.afterFirstUnlockThisDeviceOnly)
             .attributes([
                 String(kSecAttrSynchronizable): false,
                 String(kSecAttrIsInvisible): true
@@ -38,8 +38,8 @@ private extension ZerionWalletStorage {
 
     func updateAttributesIfNeeded(key: String) {
         let attrubutes = keychain[attributes: key]
-        if attributesNeedUpdate(attributes: attrubutes) {
-            let value = keychain[data: key]
+        if attributesNeedUpdate(attributes: attrubutes), let value = keychain[data: key] {
+            keychain[data: key] = nil
             keychain[data: key] = value
         }
     }
@@ -51,8 +51,9 @@ private extension ZerionWalletStorage {
 
         let invisible = (attributes[String(kSecAttrIsInvisible)] as? Bool) ?? false
         let synchronizable = (attributes[String(kSecAttrSynchronizable)] as? Bool) ?? true
+        let accessible = (attributes[String(kSecAttrAccessible)] as? String) == keychain.accessibility.rawValue
 
-        return !invisible || synchronizable
+        return !invisible || synchronizable || !accessible
     }
 }
 
