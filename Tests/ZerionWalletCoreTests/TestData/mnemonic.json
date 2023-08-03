@@ -45,6 +45,7 @@
           "derivationPath": "m/44'/60'/0'/0/2"
       }
   ],
-  "version": 1,
+  "primaryAccount": "0xED4a971eA7948B79265C3CA0b9F79D9b56c0022d",
+  "version": 2,
   "identifier": "wallet-id"
 }

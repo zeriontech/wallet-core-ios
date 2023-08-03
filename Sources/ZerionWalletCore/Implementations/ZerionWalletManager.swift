@@ -28,15 +28,28 @@ private extension ZerionWalletManager {
 }
 
 extension ZerionWalletManager: WalletManager {
+    func migrateContainersIfNeeded(password: String) throws {
+        for container in try loadAll() {
+            let migrated = try? container.migrateVersionIfNeeded(password: password)
+            if migrated ?? false {
+                try? save(wallet: container)
+            }
+        }
+    }
+
     func createWallet(password: String, name: String?) throws -> WalletContainer {
         guard !password.isEmpty else {
             throw WalletError.invalidPassword
         }
         let identifier = generateIdentifier()
         let storedKey = StoredKey(name: name ?? makeWalletName(), password: Data(password.utf8))
-        let wallet = ZerionWalletContainer(storedKey: storedKey, identifier: identifier)
+        let wallet = try ZerionWalletContainer(storedKey: storedKey, identifier: identifier, password: password)
         _ = try wallet.addAccount(password: password)
         return wallet
+    }
+
+    func importWallet(data: Data) throws -> WalletContainer {
+        try ZerionWalletContainer(data: data)
     }
 
     func importWallet(input: String, password: String, name: String?) throws -> WalletContainer {
@@ -71,7 +84,7 @@ extension ZerionWalletManager: WalletManager {
             throw WalletError.failedToImportMnemonic
         }
 
-        let wallet = ZerionWalletContainer(storedKey: storedKey, identifier: identifier)
+        let wallet = try ZerionWalletContainer(storedKey: storedKey, identifier: identifier, password: password)
         return wallet
     }
 
@@ -100,7 +113,7 @@ extension ZerionWalletManager: WalletManager {
             throw WalletError.failedToImportPrivateKey
         }
 
-        let wallet = ZerionWalletContainer(storedKey: storedKey, identifier: identifier)
+        let wallet = try ZerionWalletContainer(storedKey: storedKey, identifier: identifier, password: password)
         _ = try wallet.addAccount(password: password)
         return wallet
     }

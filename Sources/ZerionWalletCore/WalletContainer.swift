@@ -16,11 +16,15 @@ protocol WalletContainer {
 
     var version: Int { get }
 
+    var primaryAccount: String? { get }
+
     var type: ContainerType { get }
 
     var accounts: [WalletAccount] { get }
 
     init(data: Data) throws
+
+    func migrateVersionIfNeeded(password: String) throws -> Bool
 
     func derivationPath(accountIndex: UInt32) -> String
 
@@ -38,6 +42,8 @@ protocol WalletContainer {
 
     func removeAccount(derivationPath: String) throws
 
+    func removeAccounts()
+
     func decryptPrivateKey(derivationPath: String, password: String) throws -> Data
 
     func decryptPrivateKey(accountIndex: UInt32, password: String) throws -> Data
@@ -49,6 +55,8 @@ protocol WalletContainer {
     func changePassword(old: String, new: String) throws
 
     func export() throws -> Data
+
+    func copy() throws -> Self
 }
 
 extension WalletContainer {

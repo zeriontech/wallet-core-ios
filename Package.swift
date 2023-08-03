@@ -16,7 +16,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/trustwallet/wallet-core", .upToNextMajor(from: "2.0.0")),
         .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", branch: "master")
+        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess", branch: "master"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift", .upToNextMajor(from: "1.7.2"))
     ],
     targets: [
         .target(
@@ -26,6 +27,7 @@ let package = Package(
                 .product(name: "SwiftProtobuf", package: "wallet-core"),
                 .product(name: "SwiftyJSON", package: "SwiftyJSON"),
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
+                .product(name: "CryptoSwift", package: "CryptoSwift"),
             ]
         ),
         .testTarget(

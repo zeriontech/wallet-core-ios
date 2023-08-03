@@ -10,12 +10,13 @@ import Foundation
 import SwiftyJSON
 import WalletCore
 
-class ZerionWalletContainer {
+final class ZerionWalletContainer {
     let identifier: String
     var name: String
 
     private(set) var version: Int
     private(set) var accounts: [WalletAccount]
+    private(set) var primaryAccount: String?
 
     private var storedKey: StoredKey
     private let coin: CoinType
@@ -42,32 +43,29 @@ class ZerionWalletContainer {
         self.identifier = identifier
         self.name = container[ContainerKeys.name.rawValue].string ?? ""
         self.version = version
+        self.primaryAccount = container[ContainerKeys.primaryAccount.rawValue].string
         self.storedKey = storedKey
         self.coin = .ethereum
-        self.migrateVersionIfNeeded()
     }
 
-    init(storedKey: StoredKey, identifier: String) {
+    init(storedKey: StoredKey, identifier: String, password: String) throws {
         self.identifier = identifier
         self.name = storedKey.name
         self.version = ZerionWalletContainer.currentVersion
         self.storedKey = storedKey
         self.accounts = []
         self.coin = .ethereum
-        self.migrateVersionIfNeeded()
+        self.primaryAccount = try derivePrimaryAccount(password: password).address
     }
 }
 
 private extension ZerionWalletContainer {
     enum ContainerKeys: String {
-        case identifier, version, wallet, accounts, name
+        case identifier, version, primaryAccount, wallet, accounts, name
         case address, index, derivationPath
     }
 
-    static let currentVersion = 1
-
-    func migrateVersionIfNeeded() {
-    }
+    static let currentVersion = 2
 
     func makeDerivationPath(accountIndex: UInt32) -> DerivationPath {
         DerivationPath(
@@ -117,6 +115,16 @@ extension ZerionWalletContainer: WalletContainer {
         storedKey.isMnemonic ? .mnemonic : .privateKey
     }
 
+    func migrateVersionIfNeeded(password: String) throws -> Bool {
+        var migrated = false
+        if version == 1 {
+            primaryAccount = try derivePrimaryAccount(password: password).address
+            migrated = true
+        }
+        version = Self.currentVersion
+        return migrated
+    }
+
     func derivationPath(accountIndex: UInt32) -> String {
         let path = makeDerivationPath(accountIndex: accountIndex)
         return path.description
@@ -157,16 +165,20 @@ extension ZerionWalletContainer: WalletContainer {
     }
 
     func derivePrimaryAccount(password: String) throws -> WalletAccount {
-        let keyData = try decryptPrimaryPrivateKey(password: password)
-        guard let privateKey = PrivateKey(data: keyData) else {
-            throw WalletError.unableToDeriveAccount
+        switch type {
+        case .privateKey:
+            let keyData = try decryptPrimaryPrivateKey(password: password)
+            guard let privateKey = PrivateKey(data: keyData) else {
+                throw WalletError.unableToDeriveAccount
+            }
+            return WalletAccount(
+                address: coin.deriveAddress(privateKey: privateKey),
+                index: nil,
+                derivationPath: nil
+            )
+        case .mnemonic:
+            return try deriveAccount(accountIndex: 0, password: password)
         }
-
-        return WalletAccount(
-            address: coin.deriveAddress(privateKey: privateKey),
-            index: nil,
-            derivationPath: nil
-        )
     }
 
     func addAccount(derivationPath: String, password: String) throws -> WalletAccount {
@@ -197,6 +209,10 @@ extension ZerionWalletContainer: WalletContainer {
         }
     }
 
+    func removeAccounts() {
+        accounts = []
+    }
+
     func decryptPrivateKey(derivationPath: String, password: String) throws -> Data {
         let path = try makeDerivationPath(path: derivationPath)
         return try decryptPrivateKey(derivationPath: path, password: password).data
@@ -208,13 +224,15 @@ extension ZerionWalletContainer: WalletContainer {
     }
 
     func decryptPrimaryPrivateKey(password: String) throws -> Data {
-        guard
-            type == .privateKey,
-            let keyData = storedKey.decryptPrivateKey(password: Data(password.utf8))
-        else {
-            throw WalletError.failedToDecryptPrivateKey
+        switch type {
+        case .privateKey:
+            guard let keyData = storedKey.decryptPrivateKey(password: Data(password.utf8)) else {
+                throw WalletError.failedToDecryptPrivateKey
+            }
+            return keyData
+        case .mnemonic:
+            return try decryptPrivateKey(accountIndex: 0, password: password)
         }
-        return keyData
     }
 
     func decryptMnemonic(password: String) throws -> String {
@@ -265,6 +283,7 @@ extension ZerionWalletContainer: WalletContainer {
         let container = [
             ContainerKeys.identifier.rawValue: identifier,
             ContainerKeys.version.rawValue: version,
+            ContainerKeys.primaryAccount.rawValue: primaryAccount as Any,
             ContainerKeys.name.rawValue: name,
             ContainerKeys.wallet.rawValue: walletJson,
             ContainerKeys.accounts.rawValue: accounts.map { account in
@@ -277,5 +296,9 @@ extension ZerionWalletContainer: WalletContainer {
         ]
         let containerJson = JSON(container)
         return try containerJson.rawData()
+    }
+
+    func copy() throws -> ZerionWalletContainer {
+        try ZerionWalletContainer(data: export())
     }
 }
