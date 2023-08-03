@@ -92,3 +92,5 @@ $ swift build
 [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) - wrapper for iOS keychain.
 
 [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON) - easy JSON handling with Swift.
+
+[CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) - crypto related functions and helpers for Swift implemented in Swift.
