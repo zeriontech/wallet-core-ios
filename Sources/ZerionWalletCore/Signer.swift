@@ -6,6 +6,7 @@
 //  Copyright © 2022 Zerion. All rights reserved.
 //
 
+import CryptoSwift
 import Foundation
 import WalletCore
 
@@ -57,7 +58,7 @@ private extension Signer {
             }
         }
 
-        let output: EthereumSigningOutput = AnySigner.sign(input: input, coin: .fantom)
+        let output: EthereumSigningOutput = AnySigner.sign(input: input, coin: .ethereum)
         return output.encoded
     }
 
@@ -67,10 +68,11 @@ private extension Signer {
         }
 
         let digest = addPrefix ? try prefixedDataHash(data: data) : data
-        guard let signed = privateKey.sign(digest: digest, curve: CoinType.ethereum.curve) else {
+        guard var signed = privateKey.sign(digest: digest, curve: CoinType.ethereum.curve) else {
             throw SignerError.failedToSign
         }
 
+        signed[64] += 27
         return signed
     }
 
@@ -84,10 +86,11 @@ private extension Signer {
         }
 
         let digest = EthereumAbi.encodeTyped(messageJson: typedDataJson)
-        guard let signed = privateKey.sign(digest: digest, curve: CoinType.ethereum.curve) else {
+        guard var signed = privateKey.sign(digest: digest, curve: CoinType.ethereum.curve) else {
             throw SignerError.failedToSign
         }
 
+        signed[64] += 27
         return signed
     }
 }

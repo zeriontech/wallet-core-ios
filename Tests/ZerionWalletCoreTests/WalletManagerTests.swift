@@ -12,6 +12,39 @@ import XCTest
 class WalletManagerTests: XCTestCase {
     let mnemonic = "genre allow company blind security cluster cost stock skate wait debris subway"
     let privateKey = "15b30fbf6d02f91412755a27ad1402f75a0068dfae968420095c6b632d54f816"
+    let password = "12345678"
+
+    lazy var mnemonicContainerData: String = {
+        if let filepath = Bundle.module.path(forResource: "mnemonic", ofType: "json"),
+            let content = try? String(contentsOfFile: filepath) {
+            return content
+        } else {
+            fatalError("File not found")
+        }
+    }()
+
+    lazy var privateKeyContainerData: String = {
+        if let filepath = Bundle.module.path(forResource: "privateKey", ofType: "json"),
+            let content = try? String(contentsOfFile: filepath) {
+            return content
+        } else {
+            fatalError("File not found")
+        }
+    }()
+
+    func testImportData() throws {
+        let mnemonicData = Data(mnemonicContainerData.utf8)
+        let privateKeyData = Data(privateKeyContainerData.utf8)
+
+        let manager = ZerionWalletManager(storage: MockWalletStorage())
+        let mnemonicContainer = try manager.importWallet(data: mnemonicData)
+        let privateKeyContainer = try manager.importWallet(data: privateKeyData)
+
+        XCTAssertEqual(mnemonicContainer.type, .mnemonic)
+        XCTAssertEqual(mnemonicContainer.primaryAccount, try mnemonicContainer.derivePrimaryAccount(password: password).address)
+        XCTAssertEqual(privateKeyContainer.type, .privateKey)
+        XCTAssertEqual(privateKeyContainer.primaryAccount, try privateKeyContainer.derivePrimaryAccount(password: password).address)
+    }
 
     func testImportMnemonic() throws {
         let password = UUID().uuidString
@@ -22,6 +55,7 @@ class WalletManagerTests: XCTestCase {
         XCTAssertEqual(try container.decryptMnemonic(password: password), mnemonic)
         XCTAssertNoThrow(try container.export())
         XCTAssertTrue(container.accounts.isEmpty)
+        XCTAssertEqual(container.primaryAccount, try container.derivePrimaryAccount(password: password).address)
 
         XCTAssertEqual(
             try container.deriveAccount(accountIndex: 0, password: password).address,
@@ -63,6 +97,7 @@ class WalletManagerTests: XCTestCase {
         XCTAssertEqual(container.accounts.count, 1)
         XCTAssertEqual(try container.decryptPrimaryPrivateKey(password: password).hexString, privateKey)
         XCTAssertNoThrow(try container.export())
+        XCTAssertEqual(container.primaryAccount, try container.derivePrimaryAccount(password: password).address)
 
         XCTAssertEqual(
             try container.derivePrimaryAccount(password: password).address,
@@ -79,5 +114,6 @@ class WalletManagerTests: XCTestCase {
         XCTAssertEqual(container.accounts.count, 1)
         XCTAssertNoThrow(try container.decryptMnemonic(password: password))
         XCTAssertNoThrow(try container.export())
+        XCTAssertEqual(container.primaryAccount, try container.derivePrimaryAccount(password: password).address)
     }
 }

@@ -9,7 +9,11 @@
 import Foundation
 
 protocol WalletManager {
+    func migrateContainersIfNeeded(password: String) throws
+
     func createWallet(password: String, name: String?) throws -> WalletContainer
+
+    func importWallet(data: Data) throws -> WalletContainer
 
     func importWallet(input: String, password: String, name: String?) throws -> WalletContainer
 

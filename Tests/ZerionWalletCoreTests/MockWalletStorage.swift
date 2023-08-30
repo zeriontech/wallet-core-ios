@@ -11,7 +11,7 @@ import Foundation
 
 class MockWalletStorage: WalletStorage {
     private var containers = [String: WalletContainer]()
-    
+
     func count() -> Int {
         containers.values.count
     }

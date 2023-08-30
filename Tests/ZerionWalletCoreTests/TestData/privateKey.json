@@ -31,10 +31,11 @@
   "accounts": [
       {
           "address": "0x7467594Dd44629415864Af5BcBf861b0C886afAD",
-          "index": 0,
-          "derivationPath": "m/44'/60'/0'/0/0"
+          "index": null,
+          "derivationPath": null
       }
   ],
-  "version": 1,
+  "primaryAccount": "0x7467594Dd44629415864Af5BcBf861b0C886afAD",
+  "version": 2,
   "identifier": "wallet-id"
 }
