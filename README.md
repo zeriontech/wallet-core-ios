@@ -94,3 +94,7 @@ $ swift build
 [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON) - easy JSON handling with Swift.
 
 [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) - crypto related functions and helpers for Swift implemented in Swift.
+
+## License
+
+Zerion Wallet Core is available under the Apache 2.0 license. See the [LICENSE](LICENSE) file for more info.
